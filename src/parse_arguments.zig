@@ -2,7 +2,6 @@ const std = @import("std");
 
 const ParseError = error{
     CommandNotFound,
-    FileNotFound,
     AllocationFailure,
     InvalidSubcommand,
 };
@@ -27,10 +26,20 @@ pub fn parse_arguments(allocator: std.mem.Allocator) ParseError!ParsedCommand {
     };
     defer std.process.argsFree(allocator, arguments);
 
+    // No arguments/help case
     if (arguments.len == 1 or std.mem.eql(u8, "help", arguments[1])) {
         if (arguments.len > 2) return ParseError.InvalidSubcommand;
 
         const parsed_command = ParsedCommand{ .help = true };
+        return parsed_command;
+    }
+
+    // Base case, no subcommands
+    if (arguments.len == 2) {
+        // note: we will not be checking if this is a valid file,
+        //       we only are only parsing it for now.
+
+        const parsed_command = ParsedCommand{ .input_filename = arguments[1] };
         return parsed_command;
     }
 }
