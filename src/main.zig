@@ -12,12 +12,19 @@ pub fn main() !void {
                 std.debug.print("Could not allocate arguments.\n", .{});
             },
             parse.ParseError.CommandNotFound => {
-                std.debug.print("Command not found.\n", .{});
+                std.debug.print("Command not found. See 'image-to-ascii help' for info.\n", .{});
             },
             parse.ParseError.InvalidSubcommand => {
                 std.debug.print("Subcommand is not valid.\n", .{});
             },
+            parse.ParseError.DanglingSubcommand => {
+                std.debug.print("Dangling subcommand. Subcommand entered without user input attached.\n", .{});
+            },
+            parse.ParseError.InvalidScale => {
+                std.debug.print("Invalid Scale. Please enter a valid integer in scale.\n", .{});
+            },
         }
+
         return;
     };
 
