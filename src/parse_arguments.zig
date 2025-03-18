@@ -1,12 +1,12 @@
 const std = @import("std");
 
-const ParseError = error{
+pub const ParseError = error{
     CommandNotFound,
     AllocationFailure,
     InvalidSubcommand,
 };
 
-const ParsedCommand = union {
+pub const ParsedCommand = union {
     help: bool,
     input_filename: []u8,
     ComplexCommand: struct {
@@ -42,4 +42,6 @@ pub fn parse_arguments(allocator: std.mem.Allocator) ParseError!ParsedCommand {
         const parsed_command = ParsedCommand{ .input_filename = arguments[1] };
         return parsed_command;
     }
+
+    return ParseError.CommandNotFound;
 }
