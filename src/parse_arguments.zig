@@ -3,12 +3,11 @@ const std = @import("std");
 pub const ParseError = error{
     CommandNotFound,
     AllocationFailure,
-    InvalidSubcommand,
     DanglingSubcommand,
     InvalidScale,
 };
 
-pub const ParsedCommand = union {
+pub const ParsedCommand = union(enum) {
     help: bool,
     input_filename: []u8,
     ComplexCommand: struct {
@@ -27,7 +26,7 @@ pub fn parse_arguments(allocator: std.mem.Allocator) ParseError!ParsedCommand {
 
     // No arguments/help case
     if (arguments.len == 1 or std.mem.eql(u8, "help", arguments[1])) {
-        if (arguments.len > 2) return ParseError.InvalidSubcommand;
+        if (arguments.len > 2) return ParseError.CommandNotFound;
 
         const parsed_command = ParsedCommand{ .help = true };
         return parsed_command;
@@ -41,18 +40,6 @@ pub fn parse_arguments(allocator: std.mem.Allocator) ParseError!ParsedCommand {
         const parsed_command = ParsedCommand{ .input_filename = arguments[1] };
         return parsed_command;
     }
-
-    // possible errors:
-    // dangling subcommand: image-to-ascii file.png -o, image-to-ascii file.png -o -s 2
-    // solution: if remaining arguments isnt even, must have dangling subcommand
-
-    // Invalid Subcommand: image-to-ascii file.png -f w -o 2
-    // solution: if passes all if statements, invalid
-
-    // Duplicated subcommand: image-to-ascii file.png -o output.png -o file.png
-    // solution: we could ignore and keep most recent change
-    //           or have bools to track if changed before.
-    //           currently: just rewriting it
 
     // Complex command
     var parsed_command = ParsedCommand{ .ComplexCommand = .{
@@ -87,8 +74,8 @@ pub fn parse_arguments(allocator: std.mem.Allocator) ParseError!ParsedCommand {
             continue;
         }
 
-        return ParseError.InvalidSubcommand;
+        return ParseError.CommandNotFound;
     }
 
-    return ParseError.CommandNotFound;
+    return parsed_command;
 }
