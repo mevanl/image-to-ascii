@@ -1,6 +1,7 @@
 const std = @import("std");
 const parse = @import("parse_arguments.zig");
 const validate = @import("validate_command.zig");
+const execute = @import("execute_command.zig");
 
 pub fn main() !void {
     var buffer: [1024]u8 = undefined;
@@ -27,7 +28,7 @@ pub fn main() !void {
     };
 
     // Validate parsed command
-    parsed_command = validate.validate_command(allocator, parsed_command) catch |err| {
+    parsed_command = validate.validate_command(parsed_command) catch |err| {
         switch (err) {
             validate.ValidationError.InvalidParsedCommandFormat => {
                 std.debug.print("Parsed command is not in valid format.\n", .{});
@@ -37,5 +38,7 @@ pub fn main() !void {
     };
 
     // Execute validated parsed command
+    try execute.execute_command(parsed_command);
+
     return;
 }
